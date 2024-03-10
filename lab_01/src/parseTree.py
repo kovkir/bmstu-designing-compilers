@@ -3,10 +3,6 @@ from pythonds.basic.stack import Stack
 
 
 class Node:
-    value: str
-    leftChild = None
-    rightChild = None
-
     def __init__(self, nodeNumber, letterNumber=None, value=None, leftNode=None, rightNode=None):
         self.nodeNumber = nodeNumber
         self.letterNumber = letterNumber
@@ -14,21 +10,26 @@ class Node:
         self.leftChild = leftNode
         self.rightChild = rightNode
 
+        self.nullable = None
+        self.firstpos = set()
+        self.lastpos = set()
+
 
 class ParseTree():
-    def __init__(self, regex: str):
+    def __init__(self, regex: str) -> None:
         self.root = self.__buildTree(regex)
 
-    def printTree(self):
+    def printTree(self) -> None:
         self.__printNode(self.root)
 
-    def buildGraph(self):
-        dot = graphviz.Digraph(comment='Синтаксическое дерево для регулярного выражения')
-
+    def buildGraph(self) -> None:
+        dot = graphviz.Digraph(
+            comment='Синтаксическое дерево для регулярного выражения'
+        )
         self.__addNodeToGraph(self.root, dot)
         dot.render('../docs/parse-tree.gv', view=False)
     
-    def __buildTree(self, regex: str):
+    def __buildTree(self, regex: str) -> Node:
         stack = Stack()
         nodeNumber = 1
         letterNumber = 0
@@ -65,13 +66,14 @@ class ParseTree():
                 if node.value is not None:
                     node = stack.pop()
                 node.value = symbol
+                node.nullable = True
 
             elif symbol == ')':
                 node = stack.pop()
         
         return root
     
-    def __printNode(self, node: Node, end: str = ' '):
+    def __printNode(self, node: Node, end: str = ' ') -> None:
         if node is not None:
             if node.leftChild:
                 print('(', end=end)
@@ -85,7 +87,7 @@ class ParseTree():
             elif node.leftChild: # для оператора *
                 print(')', end=end)
 
-    def __addNodeToGraph(self, node: Node, dot: graphviz.Digraph):
+    def __addNodeToGraph(self, node: Node, dot: graphviz.Digraph) -> None:
         if node is not None:
             if node.leftChild:
                 self.__addNodeToGraph(node.leftChild, dot)
