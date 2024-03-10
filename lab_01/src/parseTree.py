@@ -17,17 +17,18 @@ class Node:
 
 class ParseTree():
     def __init__(self, regex: str) -> None:
+        self.followpos = dict()
         self.root = self.__buildTree(regex)
 
     def printTree(self) -> None:
         self.__printNode(self.root)
 
-    def buildGraph(self) -> None:
+    def buildGraph(self, view: bool = False) -> None:
         dot = graphviz.Digraph(
             comment='Синтаксическое дерево для регулярного выражения'
         )
         self.__addNodeToGraph(self.root, dot)
-        dot.render('../docs/parse-tree.gv', view=False)
+        dot.render('../docs/parse-tree.gv', view=view)
     
     def __buildTree(self, regex: str) -> Node:
         stack = Stack()
@@ -51,6 +52,7 @@ class ParseTree():
                 letterNumber += 1
                 node.value = symbol
                 node.letterNumber = letterNumber
+                self.followpos[letterNumber] = set()
                 node = stack.pop()
 
             elif symbol in ['.', '|']:

@@ -5,25 +5,46 @@ from parseTree import ParseTree, Node
 class DFA():
     def __init__(self, parseTree: ParseTree):
         self.root = parseTree.root
-        self.__completeNode(self.root)
+        self.followpos = parseTree.followpos
+        self.__completeTree(self.root)
 
-    def buildGraph(self) -> None:
+    def buildFirstposLastposGraph(self, view: bool = False) -> None:
         dot = graphviz.Digraph(
             comment='Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения'
         )
         self.__addNodeToGraph(self.root, dot)
-        dot.render('../docs/firstpos-lastpos.gv', view=False)
+        dot.render('../docs/firstpos-lastpos.gv', view=view)
 
-    def __completeNode(self, node: Node) -> None:
+    def buildFollowposGraph(self, view: bool = False) -> None:
+        dot = graphviz.Digraph(
+            comment='Ориентированный граф для функции followpos'
+        )
+        for i in self.followpos:
+            dot.node(str(i))
+            for j in self.followpos[i]:
+                dot.edge(str(i), str(j))
+
+        dot.render('../docs/followpos.gv', view=view)
+
+    def __completeTree(self, node: Node) -> None:
         if node is not None:
             if node.leftChild:
-                self.__completeNode(node.leftChild)
+                self.__completeTree(node.leftChild)
             if node.rightChild:
-                self.__completeNode(node.rightChild)
+                self.__completeTree(node.rightChild)
 
             node.nullable = self.__calcNullable(node)
             node.firstpos = self.__calcFirstpos(node)
             node.lastpos = self.__calcLastpos(node)
+
+            if node.value == '.':
+                for i in node.leftChild.lastpos:
+                    for j in node.rightChild.firstpos:
+                        self.followpos[i].add(j)
+            elif node.value == '*':
+                for i in node.lastpos:
+                    for j in node.firstpos:
+                        self.followpos[i].add(j)
 
     def __calcNullable(self, node: Node) -> bool:
         if node.value == '|':
