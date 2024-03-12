@@ -19,6 +19,7 @@ def main():
     dfa = DFA(parseTree)
     dfa.buildFirstposLastposGraph(view=SHOW_GRAPHS)
     dfa.buildFollowposGraph(view=SHOW_GRAPHS)
+    dfa.buildDFAGraph(view=SHOW_GRAPHS)
 
 if __name__ == '__main__':
     main()

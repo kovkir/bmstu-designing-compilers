@@ -6,7 +6,9 @@ class DFA():
     def __init__(self, parseTree: ParseTree):
         self.root = parseTree.root
         self.followpos = parseTree.followpos
+        self.letterNumbers = parseTree.letterNumbers
         self.__completeTree(self.root)
+        self.dStates = self.__findDStates()
 
     def buildFirstposLastposGraph(self, view: bool = False) -> None:
         dot = graphviz.Digraph(
@@ -25,6 +27,17 @@ class DFA():
                 dot.edge(str(i), str(j))
 
         dot.render('../docs/followpos.gv', view=view)
+
+    def buildDFAGraph(self, view: bool = False) -> None:
+        dot = graphviz.Digraph(
+            comment='ДКА для регулярного выражения'
+        )
+        for state in self.dStates.keys():
+            dot.node(state)
+            for key, value in self.dStates[state].items():
+                dot.edge(state, self.__convertSetToString(value), label=key, constraint='true')
+
+        dot.render('../docs/dfa.gv', view=view)
 
     def __completeTree(self, node: Node) -> None:
         if node is not None:
@@ -104,3 +117,37 @@ class DFA():
             if node.rightChild:
                 self.__addNodeToGraph(node.rightChild, dot)
                 dot.edge(str(node.nodeNumber), str(node.rightChild.nodeNumber))
+
+    def __findDStates(self) -> dict:
+        dStates = {}
+        newStates = [self.__convertSetToString(self.root.firstpos)]
+
+        while len(newStates) > 0:
+            state = newStates.pop()
+            dStates[state] = {}
+            for i in state:
+                i = int(i)
+                if self.letterNumbers[i] == '#':
+                    continue
+                elif not dStates[state].get(self.letterNumbers[i]):
+                    dStates[state][self.letterNumbers[i]] = self.followpos[i]
+                else:
+                    dStates[state][self.letterNumbers[i]] = self.followpos[i].union(
+                        dStates[state][self.letterNumbers[i]]
+                    )
+                
+            for state in dStates[state].values():
+                stateStr = self.__convertSetToString(state)
+                if stateStr not in dStates and stateStr not in newStates:
+                    newStates.append(stateStr)
+        
+        return dStates
+    
+    def __convertSetToString(self, item: set) -> str:
+        item = list(item)
+        item.sort()
+        itemStr = ""
+        for i in item:
+            itemStr += str(i)
+        
+        return itemStr

@@ -18,6 +18,7 @@ class Node:
 class ParseTree():
     def __init__(self, regex: str) -> None:
         self.followpos = dict()
+        self.letterNumbers = dict()
         self.root = self.__buildTree(regex)
 
     def printTree(self) -> None:
@@ -52,6 +53,7 @@ class ParseTree():
                 letterNumber += 1
                 node.value = symbol
                 node.letterNumber = letterNumber
+                self.letterNumbers[letterNumber] = symbol
                 self.followpos[letterNumber] = set()
                 node = stack.pop()
 
