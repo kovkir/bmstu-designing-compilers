@@ -7,8 +7,11 @@ class DFA():
         self.root = parseTree.root
         self.followpos = parseTree.followpos
         self.letterNumbers = parseTree.letterNumbers
+
         self.__completeTree(self.root)
+        self.initialState = self.__convertSetToString(self.root.firstpos)
         self.dStates = self.__findDStates()
+        self.finalStates = self.__findFinalStates()
 
     def printFirstposLastpos(self) -> None:
         print("Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения:")
@@ -49,12 +52,14 @@ class DFA():
         dot = graphviz.Digraph(
             comment='ДКА для регулярного выражения'
         )
+        dot.node("", peripheries="0")
+        dot.edge("", self.initialState, label="start")
+
         for state in self.dStates.keys():
-            linesCount = '1'
-            for i in state:
-                if self.letterNumbers[int(i)] == '#':
-                    linesCount = '2'
-                    break
+            if state in self.finalStates:
+                linesCount = '2'
+            else:
+                linesCount = '1'
 
             dot.node(state, peripheries=linesCount)
             for key, value in self.dStates[state].items():
@@ -157,7 +162,7 @@ class DFA():
 
     def __findDStates(self) -> dict:
         dStates = {}
-        newStates = [self.__convertSetToString(self.root.firstpos)]
+        newStates = [self.initialState]
 
         while len(newStates) > 0:
             state = newStates.pop()
@@ -180,6 +185,16 @@ class DFA():
                     newStates.append(nextState)
         
         return dStates
+    
+    def __findFinalStates(self) -> list:
+        finalStates = []
+        for state in self.dStates.keys():
+            for i in state:
+                if int(i) == self.root.rightChild.letterNumber:
+                    finalStates.append(state)
+                    break
+        
+        return finalStates
     
     def __convertSetToString(self, item: set) -> str:
         item = list(item)

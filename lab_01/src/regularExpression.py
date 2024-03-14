@@ -61,7 +61,7 @@ def convertToDesiredFormat(regex: str):
 
     # учет приоритета оператора '*'
     i = 1
-    while i < len(resRegex) - 1:
+    while i < len(resRegex):
         if resRegex[i] == "*" and resRegex[i - 1] != ")":
             resRegex = f"{resRegex[:i - 1]}({resRegex[i - 1:i + 1]}){resRegex[i + 1:]}"
             i += 2
