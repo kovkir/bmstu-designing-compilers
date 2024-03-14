@@ -10,6 +10,23 @@ class DFA():
         self.__completeTree(self.root)
         self.dStates = self.__findDStates()
 
+    def printFirstposLastpos(self) -> None:
+        print("Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения:")
+        self.__printNode(self.root)
+        print("\n")
+
+    def printFollowpos(self) -> None:
+        print("Ориентированный граф для функции followpos:")
+        for key, value in self.followpos.items():
+            print(f"{key}: {value}")
+        print()
+
+    def printDFA(self) -> None:
+        print("ДКА для регулярного выражения:")
+        for key, value in self.dStates.items():
+            print(f"{key}: {value}")
+        print()
+
     def buildFirstposLastposGraph(self, view: bool = False) -> None:
         dot = graphviz.Digraph(
             comment='Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения'
@@ -33,11 +50,31 @@ class DFA():
             comment='ДКА для регулярного выражения'
         )
         for state in self.dStates.keys():
-            dot.node(state)
+            linesCount = '1'
+            for i in state:
+                if self.letterNumbers[int(i)] == '#':
+                    linesCount = '2'
+                    break
+
+            dot.node(state, peripheries=linesCount)
             for key, value in self.dStates[state].items():
-                dot.edge(state, self.__convertSetToString(value), label=key, constraint='true')
+                dot.edge(state, value, label=key, constraint='true')
 
         dot.render('../docs/dfa.gv', view=view)
+
+    def __printNode(self, node: Node, end: str = ' ') -> None:
+        if node is not None:
+            if node.leftChild:
+                print('(', end=end)
+                self.__printNode(node.leftChild)
+
+            print(f"{node.firstpos} {node.value} {node.lastpos}", end=end)
+
+            if node.rightChild:
+                self.__printNode(node.rightChild)
+                print(')', end=end)
+            elif node.leftChild: # для оператора *
+                print(')', end=end)
 
     def __completeTree(self, node: Node) -> None:
         if node is not None:
@@ -135,11 +172,12 @@ class DFA():
                     dStates[state][self.letterNumbers[i]] = self.followpos[i].union(
                         dStates[state][self.letterNumbers[i]]
                     )
-                
-            for state in dStates[state].values():
-                stateStr = self.__convertSetToString(state)
-                if stateStr not in dStates and stateStr not in newStates:
-                    newStates.append(stateStr)
+            
+            for letter, nextState in dStates[state].items():
+                nextState = self.__convertSetToString(nextState)
+                dStates[state][letter] = nextState
+                if nextState not in dStates and nextState not in newStates:
+                    newStates.append(nextState)
         
         return dStates
     

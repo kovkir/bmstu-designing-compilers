@@ -22,7 +22,9 @@ class ParseTree():
         self.root = self.__buildTree(regex)
 
     def printTree(self) -> None:
+        print("\nСинтаксическое дерево для регулярного выражения:")
         self.__printNode(self.root)
+        print("\n")
 
     def buildGraph(self, view: bool = False) -> None:
         dot = graphviz.Digraph(
@@ -88,7 +90,7 @@ class ParseTree():
             if node.rightChild:
                 self.__printNode(node.rightChild)
                 print(')', end=end)
-            elif node.leftChild: # для оператора *
+            elif node.leftChild: # для оператора '*'
                 print(')', end=end)
 
     def __addNodeToGraph(self, node: Node, dot: graphviz.Digraph) -> None:
