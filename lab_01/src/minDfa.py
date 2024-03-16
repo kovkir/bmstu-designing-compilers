@@ -7,7 +7,7 @@ class MinDFA():
         self.alphabet = "qwertyuiopasdfghjklzxcvbnm"
         self.dStates = dfa.dStates
 
-        self.groupList = self.__minimizeNumberOfStates(dfa.finalStates)
+        self.groupList = self.__minimizeNumberOfStates(dfa.finalStates.copy())
         self.initialState = self.__findInitialState(dfa.initialState)
         self.finalStates = self.__findFinalStates(dfa.finalStates)
         self.minDstates = self.__findMinDstates()

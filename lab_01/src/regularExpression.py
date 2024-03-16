@@ -21,8 +21,8 @@ def checkRegex(regex: str):
             else:
                 raise ValueError("Неверная постановка скобок в регулярном выражении")
             
-            # в скобках должно быть только одно выражение
-            if lettersBetween != 2:
+            # в скобках должно быть хотя бы одно выражение
+            if lettersBetween < 2:
                 raise ValueError("Неверная постановка скобок в регулярном выражении")
             else:
                 lettersBetween = stack.pop()
@@ -62,9 +62,47 @@ def convertToDesiredFormat(regex: str):
     # учет приоритета оператора '*'
     i = 1
     while i < len(resRegex):
-        if resRegex[i] == "*" and resRegex[i - 1] != ")":
-            resRegex = f"{resRegex[:i - 1]}({resRegex[i - 1:i + 1]}){resRegex[i + 1:]}"
+        if resRegex[i] == "*":
+            if resRegex[i - 1] != ")":
+                resRegex = f"{resRegex[:i - 1]}({resRegex[i - 1:i + 1]}){resRegex[i + 1:]}"
+            else:
+                openingBracketIndex = findOpeningBracketIndex(resRegex, i - 1)
+                resRegex = f"{resRegex[:openingBracketIndex]}({resRegex[openingBracketIndex:i + 1]}){resRegex[i + 1:]}"
             i += 2
         i += 1
 
     return resRegex + ".#"
+
+
+def findOpeningBracketIndex(regex: str, closingBracketIndex: int) -> int:
+    regex = regex[:closingBracketIndex][::-1]
+    closingBracketsCount = 0
+    openingBracketIndex = 0
+    for i in range(len(regex)):
+        if regex[i] == ')':
+            closingBracketsCount += 1
+        elif regex[i] == '(':
+            if closingBracketsCount > 0:
+                closingBracketsCount -= 1
+            else:
+                openingBracketIndex = i
+                break
+
+    return closingBracketIndex - openingBracketIndex - 1
+
+
+def findClosingBracketIndex(regex: str, openingBracketIndex: int) -> int:
+        regex = regex[openingBracketIndex + 1:]
+        openBracketsCount = 0
+        closingBracketIndex = 0
+        for i in range(len(regex)):
+            if regex[i] == '(':
+                openBracketsCount += 1
+            elif regex[i] == ')':
+                if openBracketsCount > 0:
+                    openBracketsCount -= 1
+                else:
+                    closingBracketIndex = i
+                    break
+
+        return openingBracketIndex + closingBracketIndex + 1

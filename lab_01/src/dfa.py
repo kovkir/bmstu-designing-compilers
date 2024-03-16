@@ -54,7 +54,6 @@ class DFA():
         )
         dot.node("", peripheries="0")
         dot.edge("", self.initialState, label="start")
-
         for state in self.dStates.keys():
             if state in self.finalStates:
                 linesCount = '2'
@@ -163,11 +162,10 @@ class DFA():
     def __findDStates(self) -> dict:
         dStates = {}
         newStates = [self.initialState]
-
         while len(newStates) > 0:
             state = newStates.pop()
             dStates[state] = {}
-            for i in state:
+            for i in state.split(','):
                 i = int(i)
                 if self.letterNumbers[i] == '#':
                     continue
@@ -189,7 +187,7 @@ class DFA():
     def __findFinalStates(self) -> list:
         finalStates = []
         for state in self.dStates.keys():
-            for i in state:
+            for i in state.split(','):
                 if int(i) == self.root.rightChild.letterNumber:
                     finalStates.append(state)
                     break
@@ -201,6 +199,6 @@ class DFA():
         item.sort()
         itemStr = ""
         for i in item:
-            itemStr += str(i)
+            itemStr += f"{i},"
         
-        return itemStr
+        return itemStr[:-1]

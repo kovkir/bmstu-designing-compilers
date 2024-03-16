@@ -1,12 +1,13 @@
 import graphviz
 from pythonds.basic.stack import Stack
+from regularExpression import findClosingBracketIndex
 
 
 class Node:
-    def __init__(self, nodeNumber, letterNumber=None, value=None, leftNode=None, rightNode=None):
-        self.nodeNumber = nodeNumber
-        self.letterNumber = letterNumber
-        self.value = value
+    def __init__(self, leftNode=None, rightNode=None) -> None:
+        self.nodeNumber = None
+        self.letterNumber = None
+        self.value = None
         self.leftChild = leftNode
         self.rightChild = rightNode
 
@@ -34,50 +35,78 @@ class ParseTree():
         dot.render('../docs/parse-tree.gv', view=view)
     
     def __buildTree(self, regex: str) -> Node:
-        stack = Stack()
-        nodeNumber = 1
-        letterNumber = 0
-        node = Node(nodeNumber=nodeNumber)
+        root, _, _ = self.__buildTreeRecursion(
+            regex=regex,
+            nodeNumber=0,
+            letterNumber=0
+        )
+        return root
+    
+    def __buildTreeRecursion(
+            self, 
+            regex: str, 
+            nodeNumber: int, 
+            letterNumber: int,
+        ) -> list[Node, int, int]:
+        stackNode = Stack()
+        node = Node()
 
-        for symbol in regex:
-            if stack.isEmpty():
-                nodeNumber += 1
-                root = Node(leftNode=node, nodeNumber=nodeNumber)
-                stack.push(root)
+        i = 0
+        while i < len(regex):
+            symbol = regex[i]
+            if stackNode.isEmpty():
+                root = Node(leftNode=node)
+                stackNode.push(root)
 
             if symbol == '(':
-                nodeNumber += 1
-                node.leftChild = Node(nodeNumber=nodeNumber)
-                stack.push(node)
-                node = node.leftChild
-
+                closingBracketIndex = findClosingBracketIndex(regex, i)
+                subtreeRoot, nodeCount, letterCount = self.__buildTreeRecursion(
+                    regex=regex[i + 1: closingBracketIndex],
+                    nodeNumber=nodeNumber,
+                    letterNumber=letterNumber
+                )
+                if subtreeRoot.value is None:
+                    subtreeRoot = subtreeRoot.leftChild
+                node.leftChild = subtreeRoot.leftChild
+                node.rightChild = subtreeRoot.rightChild
+                node.value = subtreeRoot.value
+                node.nodeNumber = subtreeRoot.nodeNumber
+                nodeNumber = nodeCount
+                letterNumber = letterCount
+                i = closingBracketIndex
+                node = stackNode.pop()
+                
             elif symbol not in ['.', '|', '*', ')']:
+                nodeNumber += 1
                 letterNumber += 1
-                node.value = symbol
+                node.nodeNumber = nodeNumber
                 node.letterNumber = letterNumber
+                node.value = symbol
                 self.letterNumbers[letterNumber] = symbol
                 self.followpos[letterNumber] = set()
-                node = stack.pop()
+                node = stackNode.pop()
 
             elif symbol in ['.', '|']:
                 if node.value is not None:
-                    node = stack.pop()
+                    node = stackNode.pop()
                 nodeNumber += 1
+                node.nodeNumber = nodeNumber
                 node.value = symbol
-                node.rightChild = Node(nodeNumber=nodeNumber)
-                stack.push(node)
+                node.rightChild = Node()
+                stackNode.push(node)
                 node = node.rightChild
 
             elif symbol == '*':
                 if node.value is not None:
-                    node = stack.pop()
+                    node = stackNode.pop()
+                nodeNumber += 1
+                node.nodeNumber = nodeNumber
                 node.value = symbol
                 node.nullable = True
 
-            elif symbol == ')':
-                node = stack.pop()
+            i += 1
         
-        return root
+        return root, nodeNumber, letterNumber
     
     def __printNode(self, node: Node, end: str = ' ') -> None:
         if node is not None:

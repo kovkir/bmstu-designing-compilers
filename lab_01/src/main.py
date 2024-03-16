@@ -10,6 +10,7 @@ REGEX_DEFAULT = True
 def inputRegex(takeDefault: bool = False) -> str | None:
     if takeDefault:
         regex = "(a|b)*abb"
+        # regex = "((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*b((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*"
     else:
         regex = input("Введите регулярное выражение: ")
 
