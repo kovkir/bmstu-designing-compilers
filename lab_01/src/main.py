@@ -1,52 +1,73 @@
-from regularExpression import checkRegex, convertToDesiredFormat
+from color import *
+from regularExpression import convertRegexToDesiredFormat
 from parseTree import ParseTree
 from dfa import DFA
 from minDfa import MinDFA
+from chain import inputСhainСheckСorrespondence
 
 
-SHOW_GRAPHS = False
-REGEX_DEFAULT = True
+MSG = f"""
+    {YELLOW}\tМеню\n
+    {YELLOW}1.{BASE}  Синтаксическое дерево для регулярного выражения;
+    {YELLOW}2.{BASE}  Значения функций firstpos и lastpos в узлах синтаксического дерева;
+    {YELLOW}3.{BASE}  Ориентированный граф для функции followpos;
+    {YELLOW}4.{BASE}  ДКА для регулярного выражения;
+    {YELLOW}5.{BASE}  Минимизированный ДКА алгоритмом Хопкрофта;
+    {YELLOW}6.{BASE}  Проверка входной цепочки на соответсвие регулярному выражению;
 
-def inputRegex(takeDefault: bool = False) -> str | None:
-    if takeDefault:
-        regex = "(a|b)*abb"
-        # regex = "((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*b((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*"
-    else:
-        regex = input("Введите регулярное выражение: ")
+    {YELLOW}0.{BASE}  Выход.\n
+    {GREEN}Выбор:{BASE} """
 
-    regex = regex.replace(" ", "").lower()
+
+def inputOption():
     try:
-        checkRegex(regex)
-    except ValueError as exc:
-        print(exc, "\n")
-        return None
+        option = int(input(MSG))
+    except:
+        option = -1
+    
+    if option < 0 or option > 6:
+        print("%s\nОжидался ввод целого числа от 0 до 6%s" %(RED, BASE))
 
-    regex = convertToDesiredFormat(regex)
-    print(f"\nОбработанное регулярное выражение:\n{regex}")
+    return option
 
-    return regex
 
 def main():
-    regex = inputRegex(takeDefault=REGEX_DEFAULT)
-    if regex is None:
+    regex = input(f"\n{BLUE}Введите регулярное выражение: {BASE}")
+    # regex = "(a|b)*abb"
+    # regex = "((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*b((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*"
+    convertedRegex = convertRegexToDesiredFormat(regex)
+    if convertedRegex is None:
         return
 
-    parseTree = ParseTree(regex)
+    parseTree = ParseTree(convertedRegex)
     parseTree.printTree()
-    parseTree.buildGraph(view=SHOW_GRAPHS)
     
     dfa = DFA(parseTree)
     dfa.printFirstposLastpos()
     dfa.printFollowpos()
     dfa.printDFA()
-    dfa.buildFirstposLastposGraph(view=SHOW_GRAPHS)
-    dfa.buildFollowposGraph(view=SHOW_GRAPHS)
-    dfa.buildDFAGraph(view=SHOW_GRAPHS)
 
     minDFA = MinDFA(dfa)
     minDFA.printGroupList()
     minDFA.printMinDFA()
-    minDFA.buildMinDFAGraph(view=SHOW_GRAPHS)
+
+    option = -1
+    while option != 0:
+        option = inputOption()
+        match option:
+            case 1:
+                parseTree.buildGraph(view=True)
+            case 2:
+                dfa.buildFirstposLastposGraph(view=True)
+            case 3:
+                dfa.buildFollowposGraph(view=True)
+            case 4:
+                dfa.buildDFAGraph(view=True)
+            case 5:
+                minDFA.buildMinDFAGraph(view=True)
+            case 6:
+                inputСhainСheckСorrespondence(regex, minDFA)
+
 
 if __name__ == '__main__':
     main()

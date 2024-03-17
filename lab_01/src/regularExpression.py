@@ -1,7 +1,22 @@
 from pythonds.basic.stack import Stack
+from color import *
 
 
-def checkRegex(regex: str):
+def convertRegexToDesiredFormat(regex: str) -> str | None:
+    regex = regex.replace(" ", "").lower()
+    try:
+        checkRegex(regex)
+    except ValueError as exc:
+        print(exc, "\n")
+        return None
+
+    regex = convertToDesiredFormat(regex)
+    print(f"\n{GREEN}Обработанное регулярное выражение:{BASE}\n{regex}\n")
+
+    return regex
+
+
+def checkRegex(regex: str) -> None:
     alphabet = "qwertyuiopasdfghjklzxcvbnm()*|"
     for symbol in regex:
         if symbol not in alphabet:
@@ -92,17 +107,17 @@ def findOpeningBracketIndex(regex: str, closingBracketIndex: int) -> int:
 
 
 def findClosingBracketIndex(regex: str, openingBracketIndex: int) -> int:
-        regex = regex[openingBracketIndex + 1:]
-        openBracketsCount = 0
-        closingBracketIndex = 0
-        for i in range(len(regex)):
-            if regex[i] == '(':
-                openBracketsCount += 1
-            elif regex[i] == ')':
-                if openBracketsCount > 0:
-                    openBracketsCount -= 1
-                else:
-                    closingBracketIndex = i
-                    break
+    regex = regex[openingBracketIndex + 1:]
+    openBracketsCount = 0
+    closingBracketIndex = 0
+    for i in range(len(regex)):
+        if regex[i] == '(':
+            openBracketsCount += 1
+        elif regex[i] == ')':
+            if openBracketsCount > 0:
+                openBracketsCount -= 1
+            else:
+                closingBracketIndex = i
+                break
 
-        return openingBracketIndex + closingBracketIndex + 1
+    return openingBracketIndex + closingBracketIndex + 1

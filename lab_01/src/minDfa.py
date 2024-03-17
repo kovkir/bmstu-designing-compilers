@@ -1,4 +1,5 @@
 import graphviz
+from color import *
 from dfa import DFA
 
 
@@ -13,16 +14,15 @@ class MinDFA():
         self.minDstates = self.__findMinDstates()
         
     def printGroupList(self) -> None:
-        print("Группы состояний, полученные после минимизации ДКА алгоритмом Хопкрофта:")
+        print(f"{GREEN}Группы состояний, полученные после минимизации ДКА алгоритмом Хопкрофта:{BASE}")
         for i in range(len(self.groupList)):
             print(f"{i + 1}: {self.groupList[i]}")
         print()
 
     def printMinDFA(self) -> None:
-        print("Минимизированный ДКА алгоритмом Хопкрофта:")
+        print(f"{GREEN}Минимизированный ДКА алгоритмом Хопкрофта:{BASE}")
         for key, value in self.minDstates.items():
             print(f"{key}: {value}")
-        print()
 
     def buildMinDFAGraph(self, view: bool = False) -> None:
         dot = graphviz.Digraph(

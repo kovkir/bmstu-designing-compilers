@@ -1,4 +1,5 @@
 import graphviz
+from color import *
 from parseTree import ParseTree, Node
 
 
@@ -14,18 +15,18 @@ class DFA():
         self.finalStates = self.__findFinalStates()
 
     def printFirstposLastpos(self) -> None:
-        print("Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения:")
+        print(f"{GREEN}Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения:{BASE}")
         self.__printNode(self.root)
         print("\n")
 
     def printFollowpos(self) -> None:
-        print("Ориентированный граф для функции followpos:")
+        print(f"{GREEN}Ориентированный граф для функции followpos:{BASE}")
         for key, value in self.followpos.items():
             print(f"{key}: {value}")
         print()
 
     def printDFA(self) -> None:
-        print("ДКА для регулярного выражения:")
+        print(f"{GREEN}ДКА для регулярного выражения:{BASE}")
         for key, value in self.dStates.items():
             print(f"{key}: {value}")
         print()

@@ -1,5 +1,6 @@
 import graphviz
 from pythonds.basic.stack import Stack
+from color import *
 from regularExpression import findClosingBracketIndex
 
 
@@ -23,7 +24,7 @@ class ParseTree():
         self.root = self.__buildTree(regex)
 
     def printTree(self) -> None:
-        print("\nСинтаксическое дерево для регулярного выражения:")
+        print(f"{GREEN}Синтаксическое дерево для регулярного выражения:{BASE}")
         self.__printNode(self.root)
         print("\n")
 
