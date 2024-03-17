@@ -7,7 +7,7 @@ def convertRegexToDesiredFormat(regex: str) -> str | None:
     try:
         checkRegex(regex)
     except ValueError as exc:
-        print(exc, "\n")
+        print(f"\n{RED}{exc}{BASE}\n")
         return None
 
     regex = convertToDesiredFormat(regex)

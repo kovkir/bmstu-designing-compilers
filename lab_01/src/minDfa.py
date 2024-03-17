@@ -49,7 +49,11 @@ class MinDFA():
             if state not in finalStates:
                 nonFinalStates.append(state)
 
-        groupList = [nonFinalStates, finalStates]
+        if len(nonFinalStates):
+            groupList = [nonFinalStates, finalStates]
+        else:
+            groupList = [finalStates]
+
         groupListLen = len(groupList)
         while True:
             for group in groupList:

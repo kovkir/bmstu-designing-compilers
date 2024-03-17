@@ -41,6 +41,9 @@ class ParseTree():
             nodeNumber=0,
             letterNumber=0
         )
+        if root.value is None:
+            root = root.leftChild
+
         return root
     
     def __buildTreeRecursion(
