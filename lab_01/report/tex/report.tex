@@ -1,0 +1,184 @@
+\documentclass{bmstu}
+
+\begin{document}
+
+\makereporttitle
+{Информатика и системы управления (ИУ)}
+{Программное обеспечение ЭВМ и информационные технологии (ИУ7)}
+{\textbf{1}}
+{Конструирование компиляторов}
+{Распознавание цепочек регулярного языка}
+{6}
+{ИУ7-22М}
+{К.Э. Ковалец}
+{А.А. Ступников}
+
+
+\setcounter{page}{2}
+% \renewcommand{\contentsname}{Содержание} 
+% \tableofcontents
+
+
+\chapter{Выполнение лабораторной работы}
+
+\section{Задание}
+
+Напишите программу, которая в качестве входа принимает произвольное регулярное выражение, и выполняет
+следующие преобразования:
+\begin{enumerate}
+    \item Преобразует регулярное выражение непосредственно в ДКА.
+    \item По ДКА строит эквивалентный ему КА, имеющий наименьшее возможное количество состояний.
+    \item Моделирует минимальный КА для входной цепочки из терминалов исходной грамматики (воспользоваться алгоритмом минимизации ДКА Хопкрофта).
+\end{enumerate}
+
+\section{Набор тестов}
+
+\begin{table}[H]
+    \centering
+	\caption{Набор тестов и ожидаемые результаты работы программы}
+    \label{tbl:tests}
+	\begin{tabular}{|c|c|c|c|}
+        \hline
+        \begin{minipage}[t]{4cm}\centering \textbf{Регулярное выражение}\end{minipage} &
+        \begin{minipage}[t]{4cm}\centering \textbf{Входная цепочка}\end{minipage} &
+        \begin{minipage}[t]{4cm}\centering \textbf{Ожидаемый результат}\end{minipage} &
+        \begin{minipage}[t]{4cm}\centering \textbf{Результат}\end{minipage} \\ \hline
+        a* & a & соответствует & соответствует \\ \hline
+        a* & aaa & соответствует & соответствует \\ \hline
+        a* & b & не соответствует & не соответствует \\ \hline
+        a* & пустая & соответствует & соответствует \\ \hline
+
+        (a|b)*abb & abb & соответствует & соответствует \\ \hline
+        (a|b)*abb & aaabb & соответствует & соответствует \\ \hline
+        (a|b)*abb & babaabb & соответствует & соответствует \\ \hline
+        (a|b)*abb & ababbb & не соответствует & не соответствует \\ \hline
+        (a|b)*abb & пустая & не соответствует & не соответствует \\ \hline
+        
+        ((aa)|(bb)|c)* & aabb & соответствует & соответствует \\ \hline
+        ((aa)|(bb)|c)* & bbcccbbc & соответствует & соответствует \\ \hline
+        ((aa)|(bb)|c)* & aacab & не соответствует & не соответствует \\ \hline
+        ((aa)|(bb)|c)* & пустая & соответствует & соответствует \\ \hline
+    \end{tabular}
+\end{table}
+
+\clearpage
+\section{Результаты работы программы}
+
+Результаты работы программы для регулярного выражения \texttt{(a|b)*abb} приведены на рисунках \ref{img:parse-tree.gv.pdf}--\ref{img:min-dfa.gv.pdf}.
+
+\imgs{parse-tree.gv.pdf}{h!}{1}{Синтаксическое дерево для регулярного выражения}
+
+\imgs{firstpos-lastpos.gv.pdf}{h!}{0.62}{Значения функций firstpos и lastpos в узлах синтаксического дерева}
+
+\imgs{followpos.gv.pdf}{h!}{0.62}{Ориентированный граф для функции followpos}
+
+\imgs{dfa.gv.pdf}{h!}{0.65}{ДКА для регулярного выражения}
+
+\imgs{min-dfa.gv.pdf}{h!}{0.65}{Минимизированный ДКА алгоритмом Хопкрофта}
+
+
+\chapter{Контрольные вопросы}
+
+\begin{enumerate}
+    \item Какие из следующих множеств регулярны? Для тех, которые регулярны, напишите регулярные выражения.
+    \begin{enumerate}
+        \item Множество цепочек с равным числом нулей и единиц.
+        
+        \textbf{Ответ:} Не является регулярным множеством.
+
+        \item Множество цепочек из \texttt{\{0, 1\}*} с четным числом нулей и нечетным числом единиц.
+        
+        \textbf{Ответ:} Является регулярным множеством. 
+
+        \textbf{Пример:} ((0110)|(1001)|(1010)|(0101)|(11)|(00))*1
+        
+        ((0110)|(1001)|(1010)|(0101)|(11)|(00))*
+
+        \item Множество цепочек из \texttt{\{0, 1\}*}, длины которых делятся на 3.
+        
+        \textbf{Ответ:} Является регулярным множеством. 
+
+        \textbf{Пример:} ((0|1)(0|1)(0|1))*
+
+        \item Множество цепочек из \texttt{\{0, 1\}*}, не содержащих подцепочки 101.
+        
+        \textbf{Ответ:} Является регулярным множеством. 
+
+        \textbf{Пример:} ((0*00)|1)*
+    \end{enumerate}
+    \item Найдите праволинейные грамматики для тех множеств из вопроса 1, которые регулярны.
+    \begin{enumerate}
+        \item \begin{equation}
+            \begin{split}
+                S \to 0110S \\
+                S \to 1001S \\
+                S \to 1010S \\
+                S \to 0101S \\
+                S \to 11S \\
+                S \to 00S \\
+                S \to 1A \\
+                A \to 0110A \\
+                A \to 1001A \\
+                A \to 1010A \\
+                A \to 0101A \\
+                A \to 11A \\
+                A \to 00A \\
+                A \to \epsilon
+            \end{split}
+        \end{equation}
+        \item \begin{equation}
+            \begin{split}
+                S \to 0A \\
+                S \to 1A \\
+                S \to \epsilon \\
+                A \to 0B \\
+                A \to 1B \\
+                B \to 0S \\
+                B \to 1S
+            \end{split}
+        \end{equation}
+        \item \begin{equation}
+            \begin{split}
+                S \to A \\
+                S \to 1S \\
+                S \to \epsilon \\
+                A \to 0A \\
+                A \to 00S
+            \end{split}
+        \end{equation}
+    \end{enumerate}
+    \item Найдите детерминированные и недетерминированные конечные автоматы для тех множеств из вопроса 1,
+    которые регулярны.
+    \begin{enumerate}
+        \item \imgs{3a.pdf}{h!}{0.48}{ДКА для первого регулярного выражения}
+        \clearpage
+        \item \imgs{3b.pdf}{h!}{0.5}{ДКА для второго регулярного выражения}
+        \item \imgs{3c.pdf}{h!}{0.5}{ДКА для третьего регулярного выражения}
+    \end{enumerate}
+    \item Найдите конечный автомат с минимальным числом состояний для языка, определяемого автоматом M = (\{A,
+    B, C, D, E\}, \{0, 1\}, d, A, \{E, F\}), где функция в задается таблицей
+    \imgs{question4.png}{h!}{0.3}{Таблица для 4 вопроса}
+
+    \imgs{4-dfa.pdf}{h!}{0.67}{ДКА для языка, определяемого автоматом M}
+    \imgs{4-min-dfa.pdf}{h!}{0.67}{Минимизированный ДКА для языка, определяемого автоматом M}
+\end{enumerate}
+
+\chapter{Текст программы}
+
+В листингах \ref{lst:chain}--\ref{lst:color} представлен код программы.
+
+\mylisting[python]{main.py}{firstline=1,lastline=71}{Основной модуль программы}{main}{}
+
+\mylisting[python]{regularExpression.py}{firstline=1,lastline=126}{Модуль обработки регулярных выражений}{regularExpression}{}
+
+\mylisting[python]{parseTree.py}{firstline=1,lastline=142}{Модуль для работы с синтаксическим деревом регулярного выражения}{parseTree}{}
+
+\mylisting[python]{dfa.py}{firstline=1,lastline=205}{Модуль для работы с ДКА}{dfa}{}
+
+\mylisting[python]{minDfa.py}{firstline=1,lastline=117}{Модуль для работы с минимизированным ДКА}{minDfa}{}
+
+\mylisting[python]{chain.py}{firstline=1,lastline=28}{Модуль обработки входных цепочек}{chain}{}
+
+\mylisting[python]{color.py}{firstline=1,lastline=6}{Модуль с вариантами цветов при выводе сообщений в консоль}{color}{}
+
+\end{document}
