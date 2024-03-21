@@ -1,5 +1,5 @@
 from color import *
-from regularExpression import convertRegexToDesiredFormat
+from regularExpression import convertRegexToDesiredFormat, ALPHABET
 from parseTree import ParseTree
 from dfa import DFA
 from minDfa import MinDFA
@@ -34,7 +34,10 @@ def inputOption():
 def main():
     regex = input(f"\n{BLUE}Введите регулярное выражение: {BASE}")
     # regex = "(a|b)*abb"
-    # regex = "((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*b((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*"
+    # regex = "((abba)|(baab)|(baba)|(abab)|(bb)|(aa))*"
+    # regex = "((0110)|(1001)|(1010)|(0101)|(11)|(00))*1((0110)|(1001)|(1010)|(0101)|(11)|(00))*"
+    # regex = "((0|1)(0|1)(0|1))*"
+    # regex = "((0*00)|1)*"
     convertedRegex = convertRegexToDesiredFormat(regex)
     if convertedRegex is None:
         return
@@ -47,7 +50,7 @@ def main():
     dfa.printFollowpos()
     dfa.printDFA()
 
-    minDFA = MinDFA(dfa)
+    minDFA = MinDFA(dfa, ALPHABET)
     minDFA.printGroupList()
     minDFA.printMinDFA()
 

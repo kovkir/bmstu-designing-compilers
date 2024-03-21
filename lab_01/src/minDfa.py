@@ -4,11 +4,10 @@ from dfa import DFA
 
 
 class MinDFA():
-    def __init__(self, dfa: DFA):
-        self.alphabet = "qwertyuiopasdfghjklzxcvbnm"
+    def __init__(self, dfa: DFA, alphabet: str):
         self.dStates = dfa.dStates
 
-        self.groupList = self.__minimizeNumberOfStates(dfa.finalStates.copy())
+        self.groupList = self.__minimizeNumberOfStates(dfa.finalStates.copy(), alphabet)
         self.initialState = self.__findInitialState(dfa.initialState)
         self.finalStates = self.__findFinalStates(dfa.finalStates)
         self.minDstates = self.__findMinDstates()
@@ -43,7 +42,7 @@ class MinDFA():
 
         dot.render('../docs/min-dfa.gv', view=view)
 
-    def __minimizeNumberOfStates(self, finalStates: list) -> list:
+    def __minimizeNumberOfStates(self, finalStates: list, alphabet: str) -> list:
         nonFinalStates = []
         for state in self.dStates.keys():
             if state not in finalStates:
@@ -60,7 +59,7 @@ class MinDFA():
                 newGroup = []
                 groupDict = {}
                 for state in group:
-                    for letter in self.alphabet:
+                    for letter in alphabet:
                         nextState = self.dStates[state].get(letter)
                         firstGroupIndex = groupDict.get(letter)
                         groupIndex = \
@@ -69,11 +68,12 @@ class MinDFA():
                             groupDict[letter] = groupIndex
                         elif firstGroupIndex != groupIndex:
                             newGroup.append(state)
-                            group.remove(state)
                             break
 
                 if len(newGroup):
                     groupList.append(newGroup)
+                    for state in newGroup:
+                        group.remove(state)
 
             if groupListLen != len(groupList):
                 groupListLen = len(groupList)

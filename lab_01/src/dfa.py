@@ -14,6 +14,17 @@ class DFA():
         self.dStates = self.__findDStates()
         self.finalStates = self.__findFinalStates()
 
+        # self.initialState = "A"
+        # self.dStates = {
+        #     "A": {"0": "B", "1": "C"},
+        #     "B": {"0": "E", "1": "F"},
+        #     "C": {"0": "A", "1": "A"},
+        #     "D": {"0": "F", "1": "E"},
+        #     "E": {"0": "D", "1": "F"},
+        #     "F": {"0": "D", "1": "E"},
+        # }
+        # self.finalStates = ["E", "F"]
+
     def printFirstposLastpos(self) -> None:
         print(f"{GREEN}Значения функций firstpos и lastpos в узлах синтаксического дерева для регулярного выражения:{BASE}")
         self.__printNode(self.root)

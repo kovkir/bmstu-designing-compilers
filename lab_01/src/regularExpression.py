@@ -2,6 +2,9 @@ from pythonds.basic.stack import Stack
 from color import *
 
 
+ALPHABET = "qwertyuiopasdfghjklzxcvbnm0123456789"
+
+
 def convertRegexToDesiredFormat(regex: str) -> str | None:
     regex = regex.replace(" ", "").lower()
     try:
@@ -17,7 +20,7 @@ def convertRegexToDesiredFormat(regex: str) -> str | None:
 
 
 def checkRegex(regex: str) -> None:
-    alphabet = "qwertyuiopasdfghjklzxcvbnm()*|"
+    alphabet = ALPHABET + "()*|"
     for symbol in regex:
         if symbol not in alphabet:
             raise ValueError(f"Недопустимый символ для регулярного выражения '{symbol}'")
@@ -69,7 +72,7 @@ def convertToDesiredFormat(regex: str):
     lenRegex = len(regex)
     for i in range(lenRegex):
         resRegex += regex[i]
-        if regex[i] in "qwertyuiopasdfghjklzxcvbnm*)" and \
+        if regex[i] in ALPHABET + "*)" and \
             i != lenRegex - 1 and \
             regex[i + 1] not in ['|', '*', ')']:
             resRegex += '.'
