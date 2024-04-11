@@ -70,6 +70,68 @@ class Grammar:
             else:
                 i += 1
 
+    def convertToChomskyForm(self) -> None:
+        for notTerminal in self.notTerminals.copy():
+            for i in range(len(self.rules[notTerminal])):
+                rightRule = self.rules[notTerminal][i]
+                if len(rightRule) == 2 and \
+                    rightRule[0] in self.notTerminals and \
+                    rightRule[1] in self.notTerminals or \
+                    len(rightRule) == 1 and rightRule[0] in self.terminals or \
+                    notTerminal == self.start and rightRule[0] == "Ɛ":
+                    continue
+                
+                elif len(rightRule) == 2 and \
+                    (rightRule[0] in self.terminals or rightRule[1] in self.terminals):
+                    if rightRule[0] in self.terminals:
+                        firstElem = f"{rightRule[0]}'"
+                        if not firstElem in self.notTerminals:
+                            self.notTerminals.append(firstElem)
+                            self.rules[firstElem] = [[rightRule[0]]]
+                    else:
+                        firstElem = rightRule[0]
+
+                    if rightRule[1] in self.terminals:
+                        secondElem = f"{rightRule[1]}'"
+                        if not secondElem in self.notTerminals:
+                            self.notTerminals.append(secondElem)
+                            self.rules[secondElem] = [[rightRule[1]]]
+                    else:
+                        secondElem = rightRule[1]
+
+                    self.rules[notTerminal][i] = [firstElem, secondElem]
+
+                elif len(rightRule) > 2:
+                    if rightRule[0] in self.notTerminals:
+                        self.rules[notTerminal][i] = [rightRule[0], f"<{"".join(rightRule[1:])}>"]
+                    else:
+                        self.rules[notTerminal][i] = [f"{rightRule[0]}'", f"<{"".join(rightRule[1:])}>"]
+                        if not f"{rightRule[0]}'" in self.notTerminals:
+                            self.notTerminals.append(f"{rightRule[0]}'")
+                            self.rules[f"{rightRule[0]}'"] = [[rightRule[0]]]
+
+                    rightRule = rightRule[1:]
+                    newNotTerminal = f"<{"".join(rightRule)}>"
+                    while len(rightRule) > 2:
+                        if not newNotTerminal in self.notTerminals:
+                            self.notTerminals.append(newNotTerminal)
+            
+                            if rightRule[0] in self.notTerminals:
+                                self.rules[newNotTerminal] = [[rightRule[0], f"<{"".join(rightRule[1:])}>"]]
+                            else:
+                                self.rules[newNotTerminal] = [[f"{rightRule[0]}'", f"<{"".join(rightRule[1:])}>"]]
+                                if not f"{rightRule[0]}'" in self.notTerminals:
+                                    self.notTerminals.append(f"{rightRule[0]}'")
+                                    self.rules[f"{rightRule[0]}'"] = [[rightRule[0]]]
+
+                        rightRule = rightRule[1:]
+                        newNotTerminal = f"<{"".join(rightRule)}>"
+
+                    newNotTerminal = f"<{"".join(rightRule)}>"
+                    if not newNotTerminal in self.notTerminals:
+                        self.notTerminals.append(newNotTerminal)
+                        self.rules[newNotTerminal] = [rightRule]
+                       
     def createFileFromGrammar(self, fileName: str) -> None:
         with open(fileName, "w") as f:
             for i in range(len(self.notTerminals)):

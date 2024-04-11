@@ -10,12 +10,13 @@ MENU = f"""
     {YELLOW}2.{BASE}  Грамматика после устранения левой рекурсии;
     {YELLOW}3.{BASE}  Грамматика после устранения левой факторизации;
     {YELLOW}4.{BASE}  Грамматика после устранения левой рекурсии и левой факторизации;
+    {YELLOW}5.{BASE}  Преобразование КС-грамматики к нормальной форме Хомского.
 
     {YELLOW}0.{BASE}  Выход.\n
     {GREEN}Выбор:{BASE} """
 
 
-SIZE_MENU = 4
+SIZE_MENU = 5
 OUTPUT_FILE_NAME = "../data/result.txt"
 
 
@@ -86,6 +87,11 @@ def main():
                 grammar: Grammar = reedGrammarFromFile(inputFile)
                 grammar.removeLeftRecursion()
                 grammar.removeLeftFactorization()
+                grammar.printGrammar()
+                grammar.createFileFromGrammar(OUTPUT_FILE_NAME)
+            case 5:
+                grammar: Grammar = reedGrammarFromFile(inputFile)
+                grammar.convertToChomskyForm()
                 grammar.printGrammar()
                 grammar.createFileFromGrammar(OUTPUT_FILE_NAME)
 
