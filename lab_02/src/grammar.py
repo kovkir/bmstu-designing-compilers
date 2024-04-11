@@ -70,6 +70,29 @@ class Grammar:
             else:
                 i += 1
 
+    def createFileFromGrammar(self, fileName: str) -> None:
+        with open(fileName, "w") as f:
+            for i in range(len(self.notTerminals)):
+                if i:
+                    f.write(" ")
+                f.write(f"{self.notTerminals[i]}")
+            f.write("\n")
+
+            for i in range(len(self.terminals)):
+                if i:
+                    f.write(" ")
+                f.write(f"{self.terminals[i]}")
+            f.write("\n")
+
+            for notTerminal in self.notTerminals:
+                for rightRule in self.rules[notTerminal]:
+                    f.write(f"{notTerminal} ->")
+                    for symbol in rightRule:
+                        f.write(f" {symbol}")
+                    f.write("\n")
+            
+            f.write(f"{self.start}\n")
+
     def __removeDirectLeftFactorization(self, notTerminal: str, maxPrefix: str) -> None:
         indexList = self.__findPrefixMatches(
             rightRules=self.rules[notTerminal],
