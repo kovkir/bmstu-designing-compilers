@@ -32,7 +32,7 @@ class Grammar:
     def removeLeftRecursion(self) -> None:
         i = 0
         while i < len(self.notTerminals):
-            copyRules = self.rules[self.notTerminals[i]].copy()
+            copyRightRules = self.rules[self.notTerminals[i]].copy()
             for j in range(i):
                 self.__replaceProducts(
                     notTerminal=self.notTerminals[i],
@@ -41,8 +41,93 @@ class Grammar:
             if self.__removeDirectLeftRecursion(self.notTerminals[i]):
                 i += 2
             else:
-                self.rules[self.notTerminals[i]] = copyRules
+                self.rules[self.notTerminals[i]] = copyRightRules
                 i += 1
+    
+    def removeLeftFactorization(self) -> None:
+        i = 0
+        while i < len(self.notTerminals):
+            maxPrefix = ""
+            rightRules = self.rules[self.notTerminals[i]]
+            for j in range(len(rightRules)):
+                prefix = ""
+                for symbol in rightRules[j]:
+                    indexList = self.__findPrefixMatches(
+                        rightRules=rightRules,
+                        prefix=prefix + symbol,
+                    )
+                    if len(indexList) > 1:
+                        prefix += symbol
+                    else:
+                        break
+                
+                if len(prefix) > len(maxPrefix):
+                    maxPrefix = prefix
+            
+            if maxPrefix:
+                print(f"\nСамый длинный префикс для {self.notTerminals[i]}: {maxPrefix}")
+                self.__removeDirectLeftFactorization(self.notTerminals[i], maxPrefix)
+            else:
+                i += 1
+
+    def __removeDirectLeftFactorization(self, notTerminal: str, maxPrefix: str) -> None:
+        indexList = self.__findPrefixMatches(
+            rightRules=self.rules[notTerminal],
+            prefix=maxPrefix,
+        )
+        newRightRules = []
+        lenMaxPrefix = len(maxPrefix)
+        for i in indexList:
+            if len(self.rules[notTerminal][i]) > lenMaxPrefix:
+                newRightRules.append(self.rules[notTerminal][i][lenMaxPrefix:])
+            else:
+                newRightRules.append(["Ɛ"])
+
+        rightRules = []
+        for i in range(len(self.rules[notTerminal])):
+            if not i in indexList:
+                rightRules.append(self.rules[notTerminal][i])
+
+        newNotTerminal = self.__findNewNotTerminal(notTerminal)
+        self.rules[newNotTerminal] = newRightRules
+        self.rules[notTerminal] = \
+            [list(maxPrefix) + [newNotTerminal]] + rightRules
+        
+        indexNotTerminal = self.notTerminals.index(notTerminal)
+        self.notTerminals = \
+            self.notTerminals[:indexNotTerminal + 1] + [newNotTerminal] + \
+            self.notTerminals[indexNotTerminal + 1:]
+        
+    def __findNewNotTerminal(self, notTerminal: str):
+        try:
+            baseNotTerminal = notTerminal[:notTerminal.index("'")]
+        except ValueError:
+            baseNotTerminal = notTerminal
+
+        quotationMarkCount = 0
+        for item in self.notTerminals:
+            if item.find(baseNotTerminal) != -1:
+                quotationMarkCount += 1
+        
+        return notTerminal + "'" * quotationMarkCount
+
+    def __findPrefixMatches(self, rightRules: list[list[str]], prefix: str) -> list[int]:
+        indexList = []
+        for i in range(len(rightRules)):
+            if self.__comparePrefixes(rightRules[i], prefix):
+                indexList.append(i)
+        
+        return indexList
+    
+    def __comparePrefixes(self, rightRule: list[str], prefix: str) -> bool:
+        if len(rightRule) < len(prefix):
+            return False
+
+        for i in range(len(prefix)):
+            if prefix[i] != rightRule[i]:
+                return False
+            
+        return True
 
     def __replaceProducts(self, notTerminal: str, replaceableNotTerminal: str) -> None:
         flagReplace = False
@@ -87,8 +172,8 @@ class Grammar:
                 rightRulesForNewNotTerminal.append(rightRule)
 
         if len(rightRulesForNewNotTerminal):
-            rightRulesForNewNotTerminal.append("Ɛ")
-            indexNotTerminal = self.notTerminals.index(newNotTerminal[:-1])
+            rightRulesForNewNotTerminal.append(["Ɛ"])
+            indexNotTerminal = self.notTerminals.index(notTerminal)
             self.notTerminals = \
                 self.notTerminals[:indexNotTerminal + 1] + [newNotTerminal] + \
                 self.notTerminals[indexNotTerminal + 1:]
