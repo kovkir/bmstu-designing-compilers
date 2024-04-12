@@ -227,7 +227,8 @@ class Grammar:
             j = rightRules[i].index(replaceableNotTerminal)
             for substitutedRightRule in self.rules[replaceableNotTerminal]:
                 newRightRule = rightRules[i][:j]
-                newRightRule.extend(substitutedRightRule)
+                if substitutedRightRule[0] != "Ɛ":
+                    newRightRule.extend(substitutedRightRule)
                 newRightRule.extend(rightRules[i][j + 1:])
                 newRightRules.append(newRightRule)
         
