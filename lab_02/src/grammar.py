@@ -129,8 +129,24 @@ class Grammar:
 
                     newNotTerminal = f"<{"".join(rightRule)}>"
                     if not newNotTerminal in self.notTerminals:
+                        if rightRule[0] in self.terminals:
+                            firstElem = f"{rightRule[0]}'"
+                            if not firstElem in self.notTerminals:
+                                self.notTerminals.append(firstElem)
+                                self.rules[firstElem] = [[rightRule[0]]]
+                        else:
+                            firstElem = rightRule[0]
+
+                        if rightRule[1] in self.terminals:
+                            secondElem = f"{rightRule[1]}'"
+                            if not secondElem in self.notTerminals:
+                                self.notTerminals.append(secondElem)
+                                self.rules[secondElem] = [[rightRule[1]]]
+                        else:
+                            secondElem = rightRule[1]
+                        
                         self.notTerminals.append(newNotTerminal)
-                        self.rules[newNotTerminal] = [rightRule]
+                        self.rules[newNotTerminal] = [[firstElem, secondElem]]
                        
     def createFileFromGrammar(self, fileName: str) -> None:
         with open(fileName, "w") as f:
