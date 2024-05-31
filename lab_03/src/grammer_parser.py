@@ -362,4 +362,4 @@ def parse(mode: str, lexems: List[str]) -> None:
         print("Syntax error!")
         return
 
-    tree.children[0].print().render("tree", view=True)
+    tree.children[0].print().render("../docs/tree", view=True)
