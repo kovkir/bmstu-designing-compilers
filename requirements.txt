@@ -1,0 +1,2 @@
+graphviz==0.20.1
+pythonds==1.2.1
